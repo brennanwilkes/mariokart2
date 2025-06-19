@@ -60,12 +60,11 @@
     const CPU_STEP  = 50;
     const CPU_GUIDES=[
       {v:1000,label:'Hard CPU',alpha:1.00},
-      {v:1000-(2*CPU_STEP) ,label:'3rd CPU' ,alpha:0.80},
-      {v:1000-(5*CPU_STEP) ,label:'6th CPU' ,alpha:0.55},
-      {v:1000-(11*CPU_STEP) ,label:'12th CPU',alpha:0.30},
+      {v:1000-(2*CPU_STEP),label:'3rd CPU',alpha:0.80},
+      {v:1000-(5*CPU_STEP),label:'6th CPU',alpha:0.55},
+      {v:1000-(11*CPU_STEP),label:'12th CPU',alpha:0.30},
     ];
 
-    /* plugin draws all dashed lines + labels (left) */
     const cpuGuidePlugin={
       id:'cpuGuide',
       afterDraw({ctx,chartArea:{left,right},scales:{y}}){
@@ -77,9 +76,9 @@
           ctx.strokeStyle=`rgba(0,0,0,${g.alpha})`;
           ctx.beginPath();ctx.moveTo(left,yPos);ctx.lineTo(right,yPos);ctx.stroke();
 
-          const pad=4, txt=g.label;
-          const w=ctx.measureText(txt).width+pad*2, h=16;
-          const xBox=left+8, yBox=yPos-h/2;
+          const pad=4,txt=g.label;
+          const w=ctx.measureText(txt).width+pad*2,h=16;
+          const xBox=left+8,yBox=yPos-h/2;
           ctx.fillStyle='#fff';ctx.fillRect(xBox,yBox,w,h);
           ctx.fillStyle=`rgba(0,0,0,${g.alpha})`;
           ctx.textBaseline='middle';
@@ -90,67 +89,116 @@
     };
     Chart.register(cpuGuidePlugin);
 
-    let rawData,chart;
+    const eloLabelPlugin={
+      id:'eloLabel',
+      afterDraw(chart){
+        const {ctx,chartArea:{left,right},scales:{x,y}}=chart;
+        ctx.save();
+        ctx.font='12px sans-serif';
+        ctx.textAlign='left';
+        ctx.textBaseline='middle';
 
-    /* trailing-window mean */
-    const smooth=(arr,w)=>w?arr.map((_,i)=>arr.slice(Math.max(0,i-w+1),i+1).reduce((a,b)=>a+b,0)/Math.min(w,i+1)):arr;
+        chart.data.datasets.forEach((ds,i)=>{
+          if(ds.label.startsWith('_')||!chart.isDatasetVisible(i))return;
+          const last=ds.data[ds.data.length-1];
+          if(!last||last.y==null)return;
+
+          const yPos=y.getPixelForValue(last.y);
+          const txt=`${ds.label}: ${Math.round(last.y)}`;
+          const pad=4;
+          const w=ctx.measureText(txt).width+pad*2;
+          const h=16;
+
+          const xDot=x.getPixelForValue(ds.data.length-1);
+          // centre box on dot
+          let xBox = xDot - w/2;
+          if(xBox < left + 2) xBox = left + 2;
+          if(xBox + w > right - 2) xBox = right - w - 2;
+
+          // white background
+          ctx.fillStyle='#fff';
+          ctx.fillRect(xBox, yPos - h/2, w, h);
+          // colored outline
+          ctx.lineWidth = 1;
+          ctx.strokeStyle = ds.borderColor || ds.backgroundColor || '#000';
+          ctx.strokeRect(xBox, yPos - h/2, w, h);
+
+          // text
+          ctx.fillStyle = ds.borderColor || ds.backgroundColor || '#000';
+          ctx.fillText(txt, xBox + pad, yPos);
+        });
+        ctx.restore();
+      }
+    };
+    Chart.register(eloLabelPlugin);
+
+    let rawData,chart;
+    const smooth=(arr,w)=>w?arr.map((_,i)=>arr.slice(Math.max(0,i-w+1),i+1)
+      .reduce((a,b)=>a+b,0)/Math.min(w,i+1)):arr;
 
     const rebuild=()=>{
-      const prevVis=chart?Object.fromEntries(chart.data.datasets.map((d,i)=>[d.label,chart.isDatasetVisible(i)])):{};
-      const winSize=SMOOTH_VALUES[+$('#smooth').val()];
-      const showUnc=$('#uncertainty').prop('checked');
+      const prevVis = chart ? Object.fromEntries(
+        chart.data.datasets.map((d,i)=>[d.label,chart.isDatasetVisible(i)])
+      ) : {};
+      const winSize = SMOOTH_VALUES[+$('#smooth').val()];
+      const showUnc = $('#uncertainty').prop('checked');
 
-      /* day-tick labels */
-      const seen=new Set();
-      const labels=rawData.labels.map(l=>{
-        if(!l)return '';
-        const d=new Date(l),key=d.toISOString().slice(0,10);
-        if(seen.has(key))return '';
+      const seen = new Set();
+      const labels = rawData.labels.map(l=>{
+        if(!l) return '';
+        const d = new Date(l), key = d.toISOString().slice(0,10);
+        if(seen.has(key)) return '';
         seen.add(key);
         return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
       });
 
-      const sets=[];
+      const sets = [];
       rawData.datasets.forEach(ds=>{
-        const muSm=smooth(ds.muRaw,winSize);
-        const base=[],wins=[];
+        const muSm = smooth(ds.muRaw, winSize);
+        const base = [], wins = [];
         muSm.forEach((m,i)=>{
-          const pos=ds.pos[i],raced=pos!==null,won=pos===1;
+          const pos = ds.pos[i], raced = pos !== null, won = pos===1;
           const pt={y:m};
-          if(raced&&showUnc){const s=ds.sigma[i];pt.yMin=m-s;pt.yMax=m+s;}
-          base.push(pt); if(won)wins.push({x:i,y:m});
+          if(raced&&showUnc){ const s=ds.sigma[i]; pt.yMin=m-s; pt.yMax=m+s; }
+          base.push(pt);
+          if(won) wins.push({x:i,y:m});
         });
-        const playedLast=ds.pos.at(-1)!==null;
+        const playedLast = ds.pos.at(-1)!==null;
 
         sets.push({
-          label:ds.label,data:base,hidden:prevVis.hasOwnProperty(ds.label)?!prevVis[ds.label]:!playedLast,
-          borderColor:ds.color,backgroundColor:ds.color,
-          errorBarColor:ds.color,errorBarWhiskerColor:ds.color,errorBarStrokeStyle:ds.color,
-          errorBarLineWidth:showUnc?1:0,errorBarWhiskerLineWidth:showUnc?1:0,
-          tension:.3,borderWidth:2,
-          pointRadius:i=>ds.pos[i.dataIndex]===null?0:3,
-          pointStyle:i=>ds.pos[i.dataIndex]===null?false:'circle',
-          pointBackgroundColor:ds.color,pointBorderColor:ds.color,pointBorderWidth:1,order:0
+          label:ds.label, data:base,
+          hidden: prevVis.hasOwnProperty(ds.label) ? !prevVis[ds.label] : !playedLast,
+          borderColor:ds.color, backgroundColor:ds.color,
+          errorBarColor:ds.color, errorBarWhiskerColor:ds.color, errorBarStrokeStyle:ds.color,
+          errorBarLineWidth: showUnc?1:0, errorBarWhiskerLineWidth: showUnc?1:0,
+          tension:.3, borderWidth:2,
+          pointRadius: i=>ds.pos[i.dataIndex]===null?0:3,
+          pointStyle: i=>ds.pos[i.dataIndex]===null?false:'circle',
+          pointBackgroundColor:ds.color, pointBorderColor:ds.color, pointBorderWidth:1, order:0
         });
 
         if(wins.length){
           sets.push({
-            label:'_'+ds.label+'_wins',data:wins,type:'scatter',showLine:false,parsing:false,
-            pointRadius:6,pointStyle:'circle',pointBackgroundColor:'#fff',pointBorderColor:GOLD,pointBorderWidth:4,
-            order:99,hidden:sets[sets.length-1].hidden,borderColor:'#0000',backgroundColor:'#0000'
+            label:'_'+ds.label+'_wins', data:wins, type:'scatter', showLine:false,
+            parsing:false, pointRadius:6, pointStyle:'circle',
+            pointBackgroundColor:'#fff', pointBorderColor:GOLD,
+            pointBorderWidth:4, order:99,
+            hidden: sets[sets.length-1].hidden,
+            borderColor:'#0000', backgroundColor:'#0000'
           });
         }
       });
 
-      if(chart)chart.destroy();
-      chart=new Chart(document.getElementById('chart'),{
+      if(chart) chart.destroy();
+      chart = new Chart(document.getElementById('chart'),{
         type:'lineWithErrorBars',
         data:{labels,datasets:sets},
         options:{
-          responsive:true,maintainAspectRatio:false,
-          interaction:{mode:'index',intersect:false},
-          layout:{padding:{right:16}},
+          responsive:true, maintainAspectRatio:false,
+          interaction:{mode:'index', intersect:false},
+          layout:{padding:{right:100}},  // extra space for labels
           plugins:{
+            tooltip:{enabled:false},
             legend:{
               labels:{filter:i=>!i.text.startsWith('_')},
               onClick:(e,it,leg)=>{
@@ -158,30 +206,32 @@
                 const newV=!c.isDatasetVisible(idx);
                 c.setDatasetVisibility(idx,newV);
                 const wIdx=c.data.datasets.findIndex(d=>d.label==='_'+label+'_wins');
-                if(wIdx!==-1)c.setDatasetVisibility(wIdx,newV);
+                if(wIdx!==-1) c.setDatasetVisibility(wIdx,newV);
                 c.update();
               }
             }
           }
         },
-        plugins:[cpuGuidePlugin]
+        plugins:[cpuGuidePlugin, eloLabelPlugin]
       });
 
       $('#smoothVal').text(winSize);
     };
 
-    /* initial load */
     $.getJSON('/api/elo',data=>{
       data.labels.unshift('');
       data.datasets.forEach(d=>{
-        d.mu.unshift(START_MU);d.sigma.unshift(START_SIGMA);
-        d.muRaw=[...d.mu];d.pos=[null,...d.pos];
+        d.mu.unshift(START_MU);
+        d.sigma.unshift(START_SIGMA);
+        d.muRaw=[...d.mu];
+        d.pos=[null,...d.pos];
       });
-      rawData=data;rebuild();
+      rawData=data;
+      rebuild();
     });
 
-    $('#smooth').on('input change',rebuild);
-    $('#uncertainty').on('change',rebuild);
+    $('#smooth').on('input change', rebuild);
+    $('#uncertainty').on('change', rebuild);
   </script>
 </body>
 </html>
