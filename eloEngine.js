@@ -6,7 +6,7 @@ export const PLAYERS = [
 ];
 
 const CPU_TOP   = 1000;
-const CPU_STEP  = 25;
+const CPU_STEP  = 50;
 const CPU_SIGMA = 0.1;
 
 const BASE_MU    = 900;
@@ -26,8 +26,8 @@ const SURPRISE_FACTOR   = 5;
 const SHRINK_FACTOR     = 0.9;
 
 /* weighting & upset factors */
-const CPU_COMPARISON_FACTOR   = 0.8;   // CPUs count 20 %
-const HUMAN_COMPARISON_FACTOR = 1.5;   // humans count 100 % (increase to >1 to up-weight)
+const CPU_COMPARISON_FACTOR   = 0.75;   // CPUs count 20 %
+const HUMAN_COMPARISON_FACTOR = 2.5;   // humans count 100 % (increase to >1 to up-weight)
 const UPSET_MU_PENALTY_FACTOR = 0.25;  // 25 % of μ gap
 const UPSET_SIGMA_FACTOR      = 0.10;  // 10 % of μ gap → σ
 

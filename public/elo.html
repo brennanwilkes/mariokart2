@@ -57,11 +57,12 @@
     const GOLD          = '#FFD700';
 
     /* guide-lines: value, label, alpha */
+    const CPU_STEP  = 50;
     const CPU_GUIDES=[
       {v:1000,label:'Hard CPU',alpha:1.00},
-      {v:950 ,label:'3rd CPU' ,alpha:0.80},
-      {v:875 ,label:'6th CPU' ,alpha:0.55},
-      {v:725 ,label:'12th CPU',alpha:0.30},
+      {v:1000-(2*CPU_STEP) ,label:'3rd CPU' ,alpha:0.80},
+      {v:1000-(5*CPU_STEP) ,label:'6th CPU' ,alpha:0.55},
+      {v:1000-(11*CPU_STEP) ,label:'12th CPU',alpha:0.30},
     ];
 
     /* plugin draws all dashed lines + labels (left) */
