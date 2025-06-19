@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    command: pnpm dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports: ["3000:3000"]
+    env_file: .env
+    depends_on: [db]
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: racing
+    volumes:
+      - dbdata:/var/lib/mysql
+volumes:
+  dbdata:

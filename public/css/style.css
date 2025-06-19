@@ -1,0 +1,56 @@
+/* ───── design tokens ───── */
+:root {
+  --gap: .75rem;
+  --radius: .5rem;
+  --accent: #0078d4;
+  --font: system-ui, sans-serif;
+}
+
+/* ───── global layout ───── */
+html  { font-family: var(--font); font-size: 18px; }
+body  { margin: 0 auto; padding: 1rem; }
+body.compact { max-width: 40rem; }          /* for the form page */
+
+/* ───── navigation header ───── */
+header.site-nav { margin-bottom: 1rem; }
+header.site-nav .nav { gap: .5rem; }
+
+/* ───── form elements ───── */
+form  { display: flex; flex-direction: column; gap: var(--gap); }
+label { display: flex; justify-content: space-between; align-items: center; }
+label input,
+select {
+  flex: 0 0 5rem;
+  font-size: 1.25rem;
+  padding: .45rem .5rem;
+  border: 1px solid #ccc;
+  border-radius: var(--radius);
+}
+
+button {
+  font-size: 1.25rem;
+  font-weight: 600;
+  padding: .8rem 1.2rem;
+  color: #fff;
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius);
+}
+button:active { transform: scale(.97); }
+
+/* ───── chart area ───── */
+.chart-wrapper {
+  width: 100vw;
+  max-width: 100%;
+  height: 80vh;
+}
+.chart-wrapper canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* generic “stretch full width” canvas helper */
+canvas.full-width {
+  width: 100% !important;
+  height: auto !important;
+}

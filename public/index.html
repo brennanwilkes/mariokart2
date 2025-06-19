@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>New Race</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <!-- Bootstrap + shared CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+
+<body class="p-3 compact">
+
+  <!-- navigation -->
+  <header class="site-nav">
+    <nav class="nav nav-pills flex-sm-row justify-content-center">
+      <a class="flex-sm-fill text-sm-center nav-link active" href="/">🏁 New Race</a>
+      <a class="flex-sm-fill text-sm-center nav-link" href="/elo">📈 Elo Chart</a>
+    </nav>
+  </header>
+
+  <!-- race entry form -->
+  <form action="/race" method="post">
+    <select name="track" required>
+        <option hidden value="">Track</option>
+        <optgroup label="Base Game">
+          <option>Animal Crossing</option>
+          <option>Baby Park</option>
+          <option>Big Blue</option>
+          <option>Bone-Dry Dunes</option>
+          <option>Bowser's Castle</option>
+          <option>Cheep Cheep Beach</option>
+          <option>Cheese Land</option>
+          <option>Cloudtop Cruise</option>
+          <option>DK Jungle</option>
+          <option>Dolphin Shoals</option>
+          <option>Donut Plains 3</option>
+          <option>Dragon Driftway</option>
+          <option>Dry Dry Desert</option>
+          <option>Electrodrome</option>
+          <option>Excitebike Arena</option>
+          <option>Grumble Volcano</option>
+          <option>Hyrule Circuit</option>
+          <option>Ice Ice Outpost</option>
+          <option>Mario Circuit</option>
+          <option>Mario Circuit (Mario Kart: Super Circuit)</option>
+          <option>Mario Kart Stadium</option>
+          <option>Moo Moo Meadows</option>
+          <option>Mount Wario</option>
+          <option>Mute City</option>
+          <option>Music Park</option>
+          <option>Neo Bowser City</option>
+          <option>Piranha Plant Slide</option>
+          <option>Rainbow Road</option>
+          <option>Rainbow Road (Mario Kart 64)</option>
+          <option>Rainbow Road (Super Mario Kart)</option>
+          <option>Ribbon Road</option>
+          <option>Royal Raceway</option>
+          <option>Shy Guy Falls</option>
+          <option>Sherbet Land</option>
+          <option>Super Bell Subway</option>
+          <option>Sunshine Airport</option>
+          <option>Sweet Sweet Canyon</option>
+          <option>Thwomp Ruins</option>
+          <option>Toad Harbor</option>
+          <option>Toad's Turnpike</option>
+          <option>Tick-Tock Clock</option>
+          <option>Twisted Mansion</option>
+          <option>Water Park</option>
+          <option>Wild Woods</option>
+          <option>Wario's Goldmine</option>
+          <option>Wario Stadium</option>
+          <option>Yoshi Circuit</option>
+          <option>Yoshi Valley</option>
+        </optgroup>
+        <optgroup label="Wave One (Golden Dash Cup & Lucky Cat Cup)">
+          <option>Choco Mountain</option>
+          <option>Coconut Mall</option>
+          <option>Ninja Hideaway</option>
+          <option>Paris Promenade</option>
+          <option>Shroom Ridge</option>
+          <option>Sky Garden</option>
+          <option>Tokyo Blur</option>
+          <option>Toad Circuit</option>
+        </optgroup>
+        <optgroup label="Wave Two (Turnip Cup & Propeller Cup)">
+          <option>Kalimari Desert</option>
+          <option>Mario Circuit 3</option>
+          <option>Mushroom Gorge</option>
+          <option>New York Minute</option>
+          <option>Snow Land</option>
+          <option>Sky-High Sundae</option>
+          <option>Sydney Sprint</option>
+          <option>Waluigi Pinball</option>
+        </optgroup>
+        <optgroup label="Wave Three (Rock Cup & Moon Cup)">
+          <option>Berlin Byways</option>
+          <option>Boo Lake</option>
+          <option>London Loop</option>
+          <option>Maple Treeway</option>
+          <option>Merry Mountain</option>
+          <option>Peach Gardens</option>
+          <option>Rainbow Road (Mario Kart 7)</option>
+          <option>Rock Rock Mountain</option>
+        </optgroup>
+        <optgroup label="Wave Four (Fruit Cup & Boomerang Cup)">
+          <option>Amsterdam Drift</option>
+          <option>Bangkok Rush</option>
+          <option>DK Summit</option>
+          <option>Mario Circuit</option>
+          <option>Riverside Park</option>
+          <option>Singapore Speedway</option>
+          <option>Waluigi Stadium</option>
+          <option>Yoshi's Island</option>
+        </optgroup>
+        <optgroup label="Wave Five (Feather Cup & Cherry Cup)">
+          <option>Athens Dash</option>
+          <option>Daisy Cruiser</option>
+          <option>Koopa Cape</option>
+          <option>Los Angeles Laps</option>
+          <option>Moonview Highway</option>
+          <option>Squeaky Clean Sprint</option>
+          <option>Sunset Wilds</option>
+          <option>Vancouver Velocity</option>
+        </optgroup>
+        <optgroup label="Wave Six (Acorn Cup & Spiny Cup)">
+          <option>Bowser Castle 3</option>
+          <option>Daisy Circuit</option>
+          <option>DK Mountain</option>
+          <option>Madrid Drive</option>
+          <option>Piranha Plant Cove</option>
+          <option>Rainbow Road (Mario Kart Wii)</option>
+          <option>Rome Avanti</option>
+          <option>Rosalina's Ice World</option>
+        </optgroup>
+      </select>
+
+    <label>Brennan:<input id="Brennan" name="Brennan" type="number" min="1" max="12" inputmode="numeric"></label>
+    <label>Steven :<input id="Steven"  name="Steven"  type="number" min="1" max="12" inputmode="numeric"></label>
+    <label>Jordan :<input id="Jordan"  name="Jordan"  type="number" min="1" max="12" inputmode="numeric"></label>
+    <label>Curtis :<input id="Curtis"  name="Curtis"  type="number" min="1" max="12" inputmode="numeric"></label>
+    <label>Liam   :<input id="Liam"    name="Liam"    type="number" min="1" max="12" inputmode="numeric"></label>
+    <label>Shaun  :<input id="Shaun"   name="Shaun"   type="number" min="1" max="12" inputmode="numeric"></label>
+    <label>Christy:<input id="Christy" name="Christy" type="number" min="1" max="12" inputmode="numeric"></label>
+
+    <button type="submit">Submit</button>
+  </form>
+</body>
+</html>
